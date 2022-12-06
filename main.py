@@ -1,20 +1,29 @@
-import os
-from typing import Optional
 from fastapi import FastAPI
-import uvicorn
-import random
+from pydantic import BaseModel
 
 app = FastAPI()
 
+class Msg(BaseModel):
+    msg: str
+
+
 @app.get("/")
-def home():
-    return {"Hello": "World from FastAPI"}
+async def root():
+    return {
+  "GUID": "4ecd6de1c0006e81d1dcac29d700fed1"
+}
 
-# get random number between min(default:0) and max(default:9)
-@app.get("/random/")
-def get_random(min: Optional[int] = 0, max: Optional[int] = 9):
-    rval = random.randint(min, max)
-    return { "value": rval }
 
-if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=os.getenv("PORT", default=5000), log_level="info")
+@app.get("/path")
+async def demo_get():
+    return {"message": "This is /path endpoint, use a post request to transform the text to uppercase"}
+
+
+@app.post("/path")
+async def demo_post(inp: Msg):
+    return {"message": inp.msg.upper()}
+
+
+@app.get("/path/{path_id}")
+async def demo_get_path_id(path_id: int):
+    return {"message": f"This is /path/{path_id} endpoint, use post request to retrieve result"}
